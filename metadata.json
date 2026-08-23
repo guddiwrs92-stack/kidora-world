@@ -1,0 +1,8 @@
+{
+  "name": "Kidora",
+  "description": "Screen time they love. Growth you trust. Personalised kids content.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

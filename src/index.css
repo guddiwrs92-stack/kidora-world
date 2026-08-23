@@ -1,0 +1,207 @@
+@import "tailwindcss";
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Nunito:wght@500;600;700;800;900&display=swap');
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Nunito", ui-sans-serif, system-ui, sans-serif;
+  
+  --color-brand-primary: #1A3BD4;
+  --color-brand-accent1: #F5A623;
+  --color-brand-accent2: #7F77DD;
+  --color-brand-success: #1D9E75;
+  --color-brand-bg: #FAFAF8;
+  --color-brand-text: #1A1A2E;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--color-brand-bg);
+  color: var(--color-brand-text);
+  overflow-x: hidden;
+}
+
+/* Custom styles for animations and illustrations */
+@keyframes float {
+  0%, 100% { transform: translateY(0px) rotate(0deg); }
+  50% { transform: translateY(-8px) rotate(2deg); }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0px) rotate(0deg) scale(1); }
+  50% { transform: translateY(-15px) rotate(-3deg) scale(1.05); }
+}
+
+@keyframes pulse-subtle {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.03); opacity: 0.95; }
+}
+
+@keyframes sparkle {
+  0%, 100% { transform: scale(0.3); opacity: 0.2; }
+  50% { transform: scale(1.1); opacity: 1; }
+}
+
+.animate-float {
+  animation: float 4s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 7s ease-in-out infinite;
+}
+
+.animate-pulse-subtle {
+  animation: pulse-subtle 3s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2.5s ease-in-out infinite;
+}
+
+/* Loader animations */
+@keyframes fill-progress {
+  0% { width: 0%; }
+  100% { width: 100%; }
+}
+
+.animate-loading-bar {
+  animation: fill-progress 1.5s cubic-bezier(0.1, 0.8, 0.2, 1) forwards;
+}
+
+/* Subtle Gradient Orb Backgrounds */
+@keyframes orb-motion-1 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(50px, -70px) scale(1.08); }
+  66% { transform: translate(-30px, 50px) scale(0.92); }
+}
+
+@keyframes orb-motion-2 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(-60px, 40px) scale(0.95); }
+}
+
+@keyframes orb-motion-3 {
+  0%, 100% { transform: translate(0px, 0px) scale(1); }
+  50% { transform: translate(40px, -50px) scale(1.1); }
+}
+
+.animate-orb-1 {
+  animation: orb-motion-1 20s ease-in-out infinite;
+}
+.animate-orb-2 {
+  animation: orb-motion-2 24s ease-in-out infinite;
+}
+.animate-orb-3 {
+  animation: orb-motion-3 18s ease-in-out infinite;
+}
+
+/* Intersection Observer Scroll Reveal */
+.scroll-fade-up {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 0.7s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+.scroll-fade-up.scroll-active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.scroll-slide-left {
+  opacity: 0;
+  transform: translateX(-60px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-slide-left.scroll-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.scroll-slide-right {
+  opacity: 0;
+  transform: translateX(60px);
+  transition: opacity 0.8s ease-out, transform 0.8s ease-out;
+}
+.scroll-slide-right.scroll-active {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+/* Floating product icons with unique timings */
+@keyframes float-icon-1 {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-8px) scale(1.05) rotate(3deg); }
+}
+@keyframes float-icon-2 {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-8px) scale(1.05) rotate(-3deg); }
+}
+@keyframes float-icon-3 {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-8px) scale(1.05) rotate(2deg); }
+}
+@keyframes float-icon-4 {
+  0%, 100% { transform: translateY(0) scale(1) rotate(0deg); }
+  50% { transform: translateY(-8px) scale(1.05) rotate(-2deg); }
+}
+
+.animate-float-icon-1 { animation: float-icon-1 2s ease-in-out infinite; }
+.animate-float-icon-2 { animation: float-icon-2 2.5s ease-in-out infinite; }
+.animate-float-icon-3 { animation: float-icon-3 3s ease-in-out infinite; }
+.animate-float-icon-4 { animation: float-icon-4 2.2s ease-in-out infinite; }
+
+/* 3D Testimonial active/inactive layout states */
+.testimonial-3d-container {
+  perspective: 1200px;
+  transform-style: preserve-3d;
+}
+
+.testimonial-3d-card {
+  transition: all 0.6s cubic-bezier(0.25, 0.8, 0.25, 1);
+  transform-style: preserve-3d;
+  backface-visibility: hidden;
+}
+
+/* WhatsApp Pulse Ring effect */
+@keyframes wa-pulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+.wa-pulse-ring {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border-radius: 9999px;
+  border: 4px solid #25D366;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.wa-pulse-ring-1 {
+  animation: wa-pulse 3s cubic-bezier(0.25, 0, 0, 1) infinite;
+}
+.wa-pulse-ring-2 {
+  animation: wa-pulse 3s cubic-bezier(0.25, 0, 0, 1) infinite;
+  animation-delay: 1.5s;
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+::-webkit-scrollbar-thumb {
+  background: #7F77DD33;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7F77DD66;
+}
