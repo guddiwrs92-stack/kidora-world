@@ -6,12 +6,16 @@ interface FooterProps {
   whatsAppUrl: string;
   onOpenBedtimeMode: () => void;
   onOpenPlayroom: () => void;
+  onOpenPrivacy?: () => void;
+  onOpenTerms?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
   whatsAppUrl,
   onOpenBedtimeMode,
-  onOpenPlayroom
+  onOpenPlayroom,
+  onOpenPrivacy,
+  onOpenTerms
 }) => {
   return (
     <footer className="bg-zinc-950 text-zinc-300 pt-16 pb-12 border-t border-zinc-800">
@@ -112,15 +116,29 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>© {new Date().getFullYear()} Kidora. All rights reserved. 100% Child-Safe & Ad-Free.</p>
-          <div className="flex items-center space-x-4">
+          <p>© {new Date().getFullYear()} Kidora. All rights reserved. No ads. No autoplay. Reviewed by a person before it reaches your child.</p>
+          <div className="flex items-center space-x-3 flex-wrap justify-center">
+            {onOpenPrivacy && (
+              <button
+                onClick={onOpenPrivacy}
+                className="hover:text-zinc-300 underline cursor-pointer"
+              >
+                Privacy Policy
+              </button>
+            )}
+            <span>•</span>
+            {onOpenTerms && (
+              <button
+                onClick={onOpenTerms}
+                className="hover:text-zinc-300 underline cursor-pointer"
+              >
+                Terms of Service
+              </button>
+            )}
+            <span>•</span>
             <button onClick={onOpenBedtimeMode} className="hover:text-zinc-300 cursor-pointer">
               Bedtime Mode 🌙
             </button>
-            <span>•</span>
-            <span className="flex items-center gap-1">
-              Crafted with <Heart className="w-3 h-3 text-rose-500 fill-rose-500" /> for young minds
-            </span>
           </div>
         </div>
 

@@ -10,6 +10,8 @@ import { TestimonialsSection } from "./components/TestimonialsSection";
 import { Footer } from "./components/Footer";
 import { BedtimeModeModal } from "./components/BedtimeModeModal";
 import { CertificateBuilder } from "./components/CertificateBuilder";
+import { LegalModal } from "./components/LegalModal";
+import { ScrollMascot } from "./components/ScrollMascot";
 import { PersonalisationState } from "./types";
 import { soundManager } from "./utils/audioSynthesizer";
 import { MessageCircle, Gamepad2, Sparkles, Moon } from "lucide-react";
@@ -23,6 +25,7 @@ export function App() {
   const [isBedtimeOpen, setIsBedtimeOpen] = useState(false);
   const [isPlayroomModalOpen, setIsPlayroomModalOpen] = useState(false);
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
+  const [legalModalTab, setLegalModalTab] = useState<"privacy" | "terms" | null>(null);
 
   // Core personalization state
   const [personalisation, setPersonalisation] = useState<PersonalisationState>({
@@ -88,8 +91,11 @@ export function App() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#FAFAF8] text-[#1A1A2E] selection:bg-brand-primary selection:text-white">
+    <div className="min-h-screen flex flex-col font-sans bg-[#FAFAF8] text-[#1A1A2E] selection:bg-brand-primary selection:text-white relative">
       
+      {/* Scroll-Driven Flying Mascot Animation & Trail */}
+      <ScrollMascot companionPet={personalisation.avatar.companionPet} />
+
       {/* Top Glass Navbar */}
       <Navbar
         scrolled={scrolled}
@@ -149,6 +155,8 @@ export function App() {
         whatsAppUrl={whatsAppUrl}
         onOpenBedtimeMode={() => setIsBedtimeOpen(true)}
         onOpenPlayroom={() => setIsPlayroomModalOpen(true)}
+        onOpenPrivacy={() => setLegalModalTab("privacy")}
+        onOpenTerms={() => setLegalModalTab("terms")}
       />
 
       {/* Floating Sticky Actions (WhatsApp + Playroom trigger) */}
@@ -207,6 +215,15 @@ export function App() {
         <CertificateBuilder
           personalisation={personalisation}
           onClose={() => setIsCertificateOpen(false)}
+        />
+      )}
+
+      {/* Legal Modal (Privacy Policy & Terms) */}
+      {legalModalTab && (
+        <LegalModal
+          initialTab={legalModalTab}
+          onClose={() => setLegalModalTab(null)}
+          whatsAppUrl={whatsAppUrl}
         />
       )}
 

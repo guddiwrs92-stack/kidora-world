@@ -1,0 +1,28 @@
+# Kidora
+
+> Turn screen time into meaningful growth. Kidora creates personalised audio stories, moral adventures, and educational games tailored to your child.
+
+Kidora is an educational kids content platform dedicated to replacing mindless video scrolling with active, values-based discovery. Designed in consultation with child development and literacy specialists, Kidora tailors custom audio songs, personalized bedtime stories, and educational browser games based on a child's name, age bracket (2-4, 4-6, 6-8, 8-10 years), primary curiosity interests (Space, Dinosaurs, Animals, Ocean, Superheroes, Science), and family values (Kindness, Courage, Honesty, Sharing, Curiosity).
+
+Content packs are hand-crafted and delivered directly to parents via WhatsApp within 24 hours in high-fidelity MP3 and printable PDF storybook formats.
+
+## Key Features & Explorations
+
+- [Personalisation Creator Studio](https://www.kidora.fun/#personalise): An interactive configuration studio enabling parents to customize child avatars, companion pets, and life-lesson narratives with real-time audio previews.
+- [Educational Games Playroom](https://www.kidora.fun/#games): Kid-safe in-browser educational mini-games including FactBlast AI trivia, phonics spelling labs, space mathematics, and logical memory challenges.
+- [Screen Time Impact Calculator](https://www.kidora.fun/#calculator): Interactive diagnostic tool comparing passive video autoplay habits against interactive storytelling (+240 vocabulary words/mo vs passive consumption).
+- [Bedtime Mode & Calming Synthesizer](https://www.kidora.fun/): Gentle chimes, guided relaxation soundscapes, and sleep timers to ease kids into restful bedtime routines.
+- [Packs & Transparent Pricing](https://www.kidora.fun/#products): One-time packs starting at ₹299 (Magic Jingle), ₹499 (Growth Duo Pack), and ₹899 (Birthday Mega Pack) with no subscriptions and free revisions.
+
+## Safety & Educational Standards
+
+- 100% Ad-Free, safe, and vetted for positive developmental outcomes.
+- Zero algorithmic dark patterns or autoplay feedback loops.
+- Active moral decision-making embedded in every narrative.
+- Direct delivery to parent devices with no child accounts required.
+
+## Contacts & Support
+
+- Canonical URL: https://www.kidora.fun/
+- Support & Orders on WhatsApp: https://wa.me/919999999999
+- Inquiries: support@kidora.fun

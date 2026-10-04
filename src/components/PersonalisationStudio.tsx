@@ -71,7 +71,13 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
       setIsReadingVoice(false);
     } else {
       setIsReadingVoice(true);
-      speechVoice.speak(textToRead, {
+      // If phonetic pronunciation is set, substitute child name for speech synthesis
+      let spokenText = textToRead;
+      if (story.pronunciation && story.childName) {
+        const regex = new RegExp(`\\b${story.childName}\\b`, "gi");
+        spokenText = spokenText.replace(regex, story.pronunciation);
+      }
+      speechVoice.speak(spokenText, {
         pitch: 1.2,
         rate: 0.92,
         onEnd: () => setIsReadingVoice(false)
@@ -230,6 +236,49 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
                     />
                   </div>
 
+                  {/* Optional Pronunciation */}
+                  <div className="space-y-1.5">
+                    <label htmlFor="child-pronunciation-input" className="block text-xs font-black text-gray-700 uppercase tracking-wider">
+                      How is the name pronounced? <span className="text-gray-400 font-normal lowercase">(optional)</span>
+                    </label>
+                    <input
+                      id="child-pronunciation-input"
+                      type="text"
+                      value={personalisation.pronunciation || ""}
+                      onChange={(e) =>
+                        onUpdatePersonalisation((prev) => ({ ...prev, pronunciation: e.target.value }))
+                      }
+                      placeholder="E.g., AR-joon, MEE-rah, uh-NAN-yuh"
+                      className="w-full px-4 py-2.5 bg-gray-50 border-2 border-gray-200 focus:border-brand-primary focus:bg-white rounded-2xl text-xs font-bold outline-hidden transition-all"
+                    />
+                  </div>
+
+                  {/* Optional Pronouns */}
+                  <div className="space-y-1.5">
+                    <label className="block text-xs font-black text-gray-700 uppercase tracking-wider">
+                      Story Pronoun Preference <span className="text-gray-400 font-normal lowercase">(optional)</span>
+                    </label>
+                    <div className="grid grid-cols-4 gap-2">
+                      {(["Name", "he/him", "she/her", "they/them"] as const).map((p) => (
+                        <button
+                          key={p}
+                          type="button"
+                          onClick={() => {
+                            soundManager.playSoundEffect("click");
+                            onUpdatePersonalisation((prev) => ({ ...prev, pronouns: p }));
+                          }}
+                          className={`py-2 px-1 text-center rounded-xl text-xs font-bold border transition-all cursor-pointer ${
+                            (personalisation.pronouns || "Name") === p
+                              ? "bg-brand-primary text-white border-brand-primary shadow-xs"
+                              : "bg-white text-gray-600 border-gray-200 hover:border-gray-300"
+                          }`}
+                        >
+                          {p}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
                   {/* Age Group */}
                   <div className="space-y-1.5">
                     <label className="block text-xs font-black text-gray-700 uppercase tracking-wider">
@@ -378,7 +427,7 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
                           }`}
                         >
                           <span className="text-xl">{pet.icon}</span>
-                          <span className="font-semibold">{pet.label.split(" ")[0]}</span>
+                          <span className="font-semibold">{pet.label.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim()}</span>
                         </button>
                       ))}
                     </div>
@@ -496,10 +545,13 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
               
               {/* Badge + Player Header */}
               <div className="flex items-center justify-between pb-4 border-b border-gray-200/80">
-                <div className="flex items-center space-x-2">
-                  <span className="w-3 h-3 rounded-full bg-rose-500 animate-ping"></span>
+                <div className="flex items-center space-x-2 flex-wrap gap-y-1">
+                  <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                   <span className="text-xs font-black uppercase tracking-wider text-gray-800">
                     Live Jingle & Story Engine
+                  </span>
+                  <span className="text-[10px] font-bold bg-indigo-50 text-indigo-700 px-2 py-0.5 rounded-full border border-indigo-100">
+                    AI-assisted, human-reviewed
                   </span>
                   {bonusStars > 0 && (
                     <span className="bg-amber-100 text-amber-800 text-[10px] font-black px-2 py-0.5 rounded-full flex items-center gap-1">
@@ -560,17 +612,31 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
                   </span>
                 </div>
 
-                <div className="space-y-1.5 font-display text-xs sm:text-sm font-bold text-gray-800 leading-relaxed">
-                  {story.lyrics.map((line, idx) => (
+                <div className="space-y-2 font-display text-xs sm:text-sm font-bold text-gray-800 leading-relaxed">
+                  <div className="text-[10px] uppercase tracking-wider text-amber-700 font-black">Verses (4 Short Rhymes)</div>
+                  {story.song.verses.map((line, idx) => (
                     <div
-                      key={idx}
+                      key={`v-${idx}`}
                       className={`p-1.5 rounded-lg transition-colors ${
-                        currentNoteStep !== null && (currentNoteStep % story.lyrics.length === idx)
+                        currentNoteStep !== null && (currentNoteStep % (story.song.verses.length + story.song.chorus.length) === idx)
                           ? "bg-amber-200 text-amber-950 font-black scale-[1.01]"
                           : ""
                       }`}
                     >
-                      {line}
+                      🎵 {line}
+                    </div>
+                  ))}
+                  <div className="text-[10px] uppercase tracking-wider text-amber-800 font-black pt-1">Chorus (Repeats {story.childName})</div>
+                  {story.song.chorus.map((line, idx) => (
+                    <div
+                      key={`c-${idx}`}
+                      className={`p-1.5 rounded-lg bg-amber-100/70 text-amber-950 font-black transition-colors ${
+                        currentNoteStep !== null && (currentNoteStep % (story.song.verses.length + story.song.chorus.length) === 4 + idx)
+                          ? "bg-amber-300 scale-[1.01]"
+                          : ""
+                      }`}
+                    >
+                      ⭐ {line}
                     </div>
                   ))}
                 </div>

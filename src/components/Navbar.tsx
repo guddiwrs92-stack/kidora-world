@@ -118,7 +118,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 onOpenBedtimeMode();
               }}
               title="Bedtime Sleep & Story Mode"
-              className="p-2.5 rounded-xl bg-purple-50 text-brand-accent2 hover:bg-purple-100 transition-colors border border-purple-100 flex items-center gap-1 text-xs font-bold cursor-pointer"
+              aria-label="Bedtime Sleep & Story Mode"
+              className="min-h-[44px] min-w-[44px] p-2.5 rounded-xl bg-purple-50 text-brand-accent2 hover:bg-purple-100 transition-colors border border-purple-100 flex items-center justify-center gap-1 text-xs font-bold cursor-pointer"
             >
               <Moon className="w-4 h-4" />
               <span className="hidden sm:inline">Bedtime</span>
@@ -132,7 +133,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 soundManager.playSoundEffect("click");
               }}
               title={isMuted ? "Unmute Sound Effects & Audio" : "Mute Sound"}
-              className={`p-2.5 rounded-xl transition-colors border cursor-pointer ${
+              aria-label={isMuted ? "Unmute Sound Effects & Audio" : "Mute Sound"}
+              className={`min-h-[44px] min-w-[44px] p-2.5 rounded-xl transition-colors border cursor-pointer flex items-center justify-center ${
                 isMuted
                   ? "bg-gray-100 text-gray-400 border-gray-200"
                   : "bg-amber-50 text-brand-accent1 border-amber-200"
@@ -147,8 +149,9 @@ export const Navbar: React.FC<NavbarProps> = ({
               href={whatsAppUrl}
               target="_blank"
               referrerPolicy="no-referrer"
+              aria-label="Order on WhatsApp"
               onClick={() => soundManager.playSoundEffect("victory")}
-              className="hidden sm:inline-flex items-center px-4 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-lg transition-all duration-200"
+              className="min-h-[44px] hidden sm:inline-flex items-center px-4 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-lg transition-all duration-200"
             >
               <MessageCircle className="w-4 h-4 mr-1.5 fill-white text-[#25D366]" />
               Order on WhatsApp
@@ -158,8 +161,8 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="btn-mobile-menu"
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="lg:hidden p-2 rounded-xl text-gray-700 hover:bg-gray-100 focus:outline-hidden"
-              aria-label="Toggle menu"
+              className="lg:hidden min-h-[44px] min-w-[44px] p-2 rounded-xl text-gray-700 hover:bg-gray-100 flex items-center justify-center focus:outline-hidden"
+              aria-label="Toggle navigation menu"
             >
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>

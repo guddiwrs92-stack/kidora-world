@@ -1,6 +1,6 @@
 {
   "name": "Kidora",
-  "description": "Screen time they love. Growth you trust. Personalised kids content.",
+  "description": "Personalized kids content for ages 3–13. Fun songs, videos, jingles and games that turn screen time into meaningful learning.",
   "requestFramePermissions": [],
   "majorCapabilities": [
     "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"

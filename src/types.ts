@@ -1,5 +1,7 @@
 export interface PersonalisationState {
   name: string;
+  pronunciation?: string;
+  pronouns?: "Name" | "he/him" | "she/her" | "they/them";
   age: string;
   interest: string;
   goal: string;
@@ -22,6 +24,11 @@ export interface GameScore {
   highestStreak: number;
 }
 
+export interface GeneratedSong {
+  verses: string[];
+  chorus: string[];
+}
+
 export interface StoryPage {
   pageNumber: number;
   sceneTitle: string;
@@ -39,8 +46,10 @@ export interface StoryPage {
 export interface GeneratedStory {
   title: string;
   childName: string;
+  pronunciation?: string;
   theme: string;
   moralValue: string;
+  song: GeneratedSong;
   lyrics: string[];
   pages: StoryPage[];
   celebrationBadge: string;

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { MessageCircle, Check, Star, Sparkles, ChevronDown, ChevronUp, Gift, Zap, Shield } from "lucide-react";
+import { MessageCircle, Check, Gift, ChevronDown, ChevronUp, Shield, Lock, EyeOff, Trash2 } from "lucide-react";
 import { soundManager } from "../utils/audioSynthesizer";
 
 interface ProductsAndPricingProps {
@@ -19,14 +19,13 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
       title: "Magic Jingle",
       badge: "Fast Delivery",
       price: "₹299",
-      oldPrice: "₹499",
       desc: "One 60-second high-energy, custom name sing-along song for your child.",
       features: [
         "Personalised with child's name & interests",
         "High-fidelity MP3 delivered on WhatsApp",
         "Printable Lyrics Sheet PDF",
         "Delivered in under 24 Hours",
-        "100% Satisfaction Guarantee"
+        "Satisfaction guarantee with free revisions"
       ],
       ctaText: "Order Magic Jingle",
       popular: false
@@ -36,14 +35,13 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
       title: "Growth Duo Pack",
       badge: "Most Popular ⭐",
       price: "₹499",
-      oldPrice: "₹899",
       desc: "Custom singalong song + Illustrated 3-chapter moral choice storybook.",
       features: [
         "Personalised 60s Magic Jingle MP3",
         "Illustrated 3-Chapter Storybook PDF",
         "Custom Moral Value & Life Lesson Focus",
-        "Printable Gold Explorer Certificate",
-        "2 Free Revisions included",
+        "Printable Explorer Certificate",
+        "Free revisions included",
         "Fast 24-Hour WhatsApp Delivery"
       ],
       ctaText: `Get Growth Duo for ${childName || "Child"}`,
@@ -54,13 +52,12 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
       title: "Birthday Mega Pack",
       badge: "Celebration Special 🎂",
       price: "₹899",
-      oldPrice: "₹1,499",
       desc: "Full celebration pack with Happy Birthday anthem, personalized trivia & games link.",
       features: [
         "Custom Birthday Anthem with Child's Name",
         "Full Illustrated Storybook & Coloring Sheets",
         "Personalised Birthday Trivia Game URL",
-        "Gold Achievement Certificate of Conformance",
+        "Gold Explorer Certificate",
         "High-Res WhatsApp Video Invitation Card",
         "Priority 12-Hour Delivery"
       ],
@@ -72,15 +69,15 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
   const FAQS = [
     {
       q: "How does the delivery process work on WhatsApp?",
-      a: "Once you place your order via WhatsApp, our creative sound and story team crafts your child's personalized audio and illustrated materials based on your inputs. Within 24 hours, you receive the high-fidelity audio MP3, printable PDF storybooks, and badges right inside your WhatsApp chat!"
+      a: "Once you place your order via WhatsApp, our creative team drafts and reviews your child's personalized audio and illustrated materials based on your inputs. Every piece is AI-assisted, human-reviewed before it reaches your child. Within 24 hours, you receive the high-fidelity audio MP3, printable PDF storybooks, and badges right inside your WhatsApp chat."
     },
     {
       q: "Can I request changes if my child's name pronunciation is unique?",
-      a: "Absolutely! When you order on WhatsApp, you can even send a 5-second voice note of how your child's name is pronounced. If any detail needs tuning, we provide free revisions until you and your child are 100% happy."
+      a: "Absolutely! When you order on WhatsApp, you can send a 5-second voice note of how your child's name is pronounced. If any detail needs tuning, we provide free revisions until you and your child are happy."
     },
     {
       q: "Are the games and stories safe for screen time?",
-      a: "Yes, 100%! Kidora content is designed around active learning rather than passive addictive feeds. There are zero third-party ads, zero tracking algorithms, and zero dark patterns. All content promotes curiosity, vocabulary, and moral values."
+      a: "No ads. No autoplay. Reviewed by a person before it reaches your child. Kidora content is designed around active learning rather than passive addictive feeds. We do not track or profile children, and all content promotes curiosity, vocabulary, and moral values."
     },
     {
       q: "Do you offer bulk packs for schools or birthday return gifts?",
@@ -135,10 +132,12 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
 
                 <p className="text-xs text-gray-500 font-medium mb-4">{prod.desc}</p>
 
+                {/* Real Price Display without crossed-out prices */}
                 <div className="flex items-baseline space-x-2 mb-6">
                   <span className="font-display text-4xl font-black text-brand-text">{prod.price}</span>
-                  <span className="text-sm font-bold text-gray-400 line-through">{prod.oldPrice}</span>
-                  <span className="text-[10px] font-bold text-emerald-600 uppercase">One-Time</span>
+                  <span className="text-[11px] font-bold text-emerald-700 uppercase bg-emerald-50 px-2.5 py-0.5 rounded-full">
+                    One-Time Price
+                  </span>
                 </div>
 
                 {/* Features list */}
@@ -152,7 +151,6 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
                 </div>
               </div>
 
-              {/* Order Button */}
               <a
                 href={whatsAppUrl}
                 target="_blank"
@@ -171,13 +169,70 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
           ))}
         </div>
 
+        {/* TRUST SECTION: How we treat your child's information */}
+        <div className="max-w-3xl mx-auto mb-16 p-6 sm:p-8 bg-linear-to-b from-indigo-50/70 to-white rounded-3xl border-2 border-indigo-100/80 shadow-sm">
+          <div className="flex items-center space-x-2.5 mb-4">
+            <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center">
+              <Shield className="w-4 h-4" />
+            </div>
+            <h3 className="font-display text-xl sm:text-2xl font-black text-brand-text">
+              How we treat your child's information
+            </h3>
+          </div>
+          <p className="text-xs sm:text-sm text-gray-600 font-medium mb-6">
+            We believe children's digital experiences should be respectful, private, and parent-guided.
+          </p>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="p-4 bg-white rounded-2xl border border-gray-100 space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold text-brand-primary">
+                <Lock className="w-4 h-4 text-brand-primary shrink-0" />
+                <span>Minimal Collection</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                We collect only the child's first name, age band, and interests you choose.
+              </p>
+            </div>
+
+            <div className="p-4 bg-white rounded-2xl border border-gray-100 space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold text-brand-primary">
+                <EyeOff className="w-4 h-4 text-brand-primary shrink-0" />
+                <span>No Profiling</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                We do not track or profile children across apps, devices, or browsing sessions.
+              </p>
+            </div>
+
+            <div className="p-4 bg-white rounded-2xl border border-gray-100 space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold text-brand-primary">
+                <Shield className="w-4 h-4 text-emerald-600 shrink-0" />
+                <span>No Ads, No Selling</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                No third-party advertisements, no marketing trackers, and we never sell data.
+              </p>
+            </div>
+
+            <div className="p-4 bg-white rounded-2xl border border-gray-100 space-y-1">
+              <div className="flex items-center space-x-2 text-xs font-bold text-brand-primary">
+                <Trash2 className="w-4 h-4 text-rose-500 shrink-0" />
+                <span>Right to Delete</span>
+              </div>
+              <p className="text-xs text-gray-600 leading-relaxed font-medium">
+                You can ask us to delete everything at any time simply via WhatsApp message.
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* FAQ Section */}
-        <div id="faq" className="max-w-3xl mx-auto space-y-4 pt-6">
+        <div id="faq" className="max-w-3xl mx-auto space-y-4 pt-2">
           <div className="text-center space-y-2 mb-8">
             <h3 className="font-display text-2xl sm:text-3xl font-black text-brand-text">
               Frequently Asked Questions
             </h3>
-            <p className="text-xs text-gray-500 font-medium">Everything you need to know about our magic packs</p>
+            <p className="text-xs text-gray-500 font-medium">Clear answers about our personalized content packs and delivery</p>
           </div>
 
           <div className="space-y-3">

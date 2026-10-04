@@ -1,0 +1,42 @@
+# Kidora robots.txt
+# https://www.kidora.fun/
+
+User-agent: *
+Allow: /
+Disallow: /admin/
+Disallow: /api/internal/
+
+# Allow CSS, JS, and image assets for search engine rendering
+Allow: /*.css$
+Allow: /*.js$
+Allow: /*.svg$
+Allow: /*.png$
+Allow: /*.webp$
+
+# Welcoming AI search engines, citation agents, and answer engines (GEO)
+User-agent: GPTBot
+Allow: /
+
+User-agent: OAI-SearchBot
+Allow: /
+
+User-agent: ChatGPT-User
+Allow: /
+
+User-agent: PerplexityBot
+Allow: /
+
+User-agent: ClaudeBot
+Allow: /
+
+User-agent: Google-Extended
+Allow: /
+
+User-agent: Applebot-Extended
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# XML Sitemap location
+Sitemap: https://www.kidora.fun/sitemap.xml

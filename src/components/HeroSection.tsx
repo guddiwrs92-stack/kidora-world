@@ -26,6 +26,35 @@ interface HeroSectionProps {
   onStopSample: () => void;
 }
 
+// Companion image map supporting Kidora mascot dragon and custom companions
+const COMPANION_IMAGE_MAP: Record<string, string> = {
+  "baby dragon": "/assets/mascot-dragon.png",
+  "dragon": "/assets/mascot-dragon.png",
+  "robot": "/assets/companion-robot.png",
+  "fox": "/assets/companion-fox.png",
+  "bunny": "/assets/companion-bunny.png",
+  "space pup": "/assets/companion-pup.png",
+  "flying kitten": "/assets/companion-kitten.png",
+  "magic owl": "/assets/companion-owl.png",
+  "galaxy panda": "/assets/companion-panda.png",
+  "wonder lion": "/assets/companion-lion.png"
+};
+
+const cleanCompanionName = (petName: string): string => {
+  if (!petName) return "Baby Dragon";
+  return (
+    petName.replace(/[\p{Emoji_Presentation}\p{Extended_Pictographic}]/gu, "").trim() ||
+    "Baby Dragon"
+  );
+};
+
+const getCompanionImage = (petName: string): string | null => {
+  const clean = cleanCompanionName(petName).toLowerCase();
+  if (clean.includes("dragon")) return "/assets/mascot-dragon.png";
+  if (COMPANION_IMAGE_MAP[clean]) return COMPANION_IMAGE_MAP[clean];
+  return null;
+};
+
 export const HeroSection: React.FC<HeroSectionProps> = ({
   personalisation,
   onOpenCreator,
@@ -37,10 +66,41 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   const heroCtaRef = useRef<HTMLButtonElement | null>(null);
   const [heroCtaStyle, setHeroCtaStyle] = useState<React.CSSProperties>({});
   const [cardStyle, setCardStyle] = useState<React.CSSProperties>({});
+  const [imageFailed, setImageFailed] = useState(false);
 
-  // Typewriter effect state
-  const [headlinePart1, setHeadlinePart1] = useState("");
-  const [headlinePart2, setHeadlinePart2] = useState("");
+  useEffect(() => {
+    setImageFailed(false);
+  }, [personalisation.avatar.companionPet]);
+
+  const rawCompanion = personalisation.avatar.companionPet;
+  const companionDisplayName = cleanCompanionName(rawCompanion);
+  const companionImage = getCompanionImage(rawCompanion);
+  const initialLetter = companionDisplayName.charAt(0).toUpperCase() || "K";
+
+  // Track scroll position to coordinate with the flight mascot
+  const [isScrolledPastHero, setIsScrolledPastHero] = useState(false);
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(false);
+
+  useEffect(() => {
+    const mql = window.matchMedia("(prefers-reduced-motion: reduce)");
+    setPrefersReducedMotion(mql.matches);
+    const listener = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener("change", listener);
+    return () => mql.removeEventListener("change", listener);
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolledPastHero(window.scrollY > 25);
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  // Typewriter effect state - initialized with full copy so H1 is never empty for crawlers
+  const [headlinePart1, setHeadlinePart1] = useState("Screen time they love.");
+  const [headlinePart2, setHeadlinePart2] = useState("Growth you trust.");
   const [cursorFade, setCursorFade] = useState(false);
 
   // Typewriter effect logic
@@ -258,7 +318,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
             </div>
 
             {/* Typewriter Headline */}
-            <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-brand-text leading-tight tracking-tight min-h-[140px] sm:min-h-[160px]">
+            <h1
+              className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-brand-text leading-tight tracking-tight min-h-[140px] sm:min-h-[160px]"
+              aria-label="Screen time they love. Growth you trust. Personalised kids content."
+            >
               <span className="text-brand-primary relative inline-block">
                 {headlinePart1}
                 {headlinePart1 && (
@@ -275,9 +338,9 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               {!cursorFade && (
                 <span className="inline-block w-[3px] h-[0.9em] bg-brand-accent2 ml-1 align-middle animate-pulse"></span>
               )}
-              <div className="text-base sm:text-lg md:text-xl font-bold text-brand-accent1 font-display tracking-wide mt-2">
+              <span className="block text-base sm:text-lg md:text-xl font-bold text-brand-accent1 font-display tracking-wide mt-2">
                 "Custom songs, stories & games built for {childName}."
-              </div>
+              </span>
             </h1>
 
             {/* Sub-headline */}
@@ -359,11 +422,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-xs font-bold text-gray-500 uppercase tracking-wider">
                 <div className="flex items-center justify-center lg:justify-start space-x-1.5">
                   <Zap className="w-4 h-4 text-brand-accent1" />
-                  <span>AI Powered</span>
+                  <span>AI-assisted, human-reviewed</span>
                 </div>
                 <div className="flex items-center justify-center lg:justify-start space-x-1.5">
                   <ShieldCheck className="w-4 h-4 text-brand-success" />
-                  <span>100% Ad-Free</span>
+                  <span>No ads. No autoplay.</span>
                 </div>
                 <div className="flex items-center justify-center lg:justify-start space-x-1.5">
                   <Heart className="w-4 h-4 text-rose-500" />
@@ -407,13 +470,45 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
               {/* Animated Scene Preview */}
               <div className="bg-linear-to-br from-indigo-50/80 to-purple-50/60 rounded-2xl p-5 relative overflow-hidden mb-4 border border-indigo-50 text-center">
-                <div className="flex justify-center mb-2">
-                  <div className="relative animate-bounce">
-                    <span className="text-6xl block drop-shadow-md">
-                      {personalisation.avatar.companionPet.split(" ")[1] || "🐉"}
+                <div
+                  id="hero-mascot-slot"
+                  className="flex justify-center items-center mb-2 min-h-[145px] transition-opacity duration-300"
+                  style={{
+                    opacity: isScrolledPastHero && !prefersReducedMotion ? 0.25 : 1
+                  }}
+                >
+                  <motion.div
+                    animate={{ y: [0, -8, 0] }}
+                    transition={{
+                      duration: 3,
+                      repeat: Infinity,
+                      ease: "easeInOut"
+                    }}
+                    className="relative inline-flex items-center justify-center my-1"
+                  >
+                    {companionImage && !imageFailed ? (
+                      <img
+                        src={companionImage}
+                        alt={`${companionDisplayName} companion`}
+                        className="h-[140px] w-auto max-w-[160px] object-contain drop-shadow-md select-none"
+                        referrerPolicy="no-referrer"
+                        onError={() => setImageFailed(true)}
+                      />
+                    ) : (
+                      <div
+                        className="w-28 h-28 rounded-full bg-linear-to-tr from-brand-primary to-indigo-400 text-white font-display font-black text-4xl flex items-center justify-center shadow-lg shadow-indigo-200/50 border-4 border-white select-none"
+                        aria-label={`${companionDisplayName} companion`}
+                      >
+                        {initialLetter}
+                      </div>
+                    )}
+                    <span
+                      className="absolute -top-1 -right-2 text-2xl select-none animate-pulse"
+                      aria-hidden="true"
+                    >
+                      ✨
                     </span>
-                    <span className="absolute -top-1 -right-2 text-xl animate-spin">✨</span>
-                  </div>
+                  </motion.div>
                 </div>
 
                 <p className="font-display text-base sm:text-lg font-black text-brand-text leading-snug">

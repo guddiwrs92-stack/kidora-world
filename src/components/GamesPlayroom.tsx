@@ -253,7 +253,7 @@ export const GamesPlayroom: React.FC<GamesPlayroomProps> = ({ onClose, isModal =
               4 Playable Kids Games
             </h2>
             <p className="text-gray-600 text-sm sm:text-base font-medium mt-1">
-              Live educational adventures: no sign up needed, 100% safe & playable directly in browser.
+              Live educational adventures: no sign-up needed, no ads, playable directly in browser.
             </p>
           </div>
 

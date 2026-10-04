@@ -38,7 +38,7 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
   };
 
   return (
-    <section className="py-16 md:py-24 bg-white border-t border-b border-gray-100 relative overflow-hidden">
+    <section id="delivery" className="py-16 md:py-24 bg-white border-t border-b border-gray-100 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
