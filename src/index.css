@@ -243,3 +243,52 @@ body {
   animation: mascotWave 1.6s ease-in-out infinite;
 }
 
+/* Feature Cards Floating Animations (gentle, organic asynchronous floating) */
+@keyframes cardFloatGentle1 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes cardFloatGentle2 {
+  0%, 100% {
+    transform: translateY(-2px);
+  }
+  50% {
+    transform: translateY(-11px);
+  }
+}
+
+@keyframes cardFloatGentle3 {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .animate-card-float-1 {
+    animation: cardFloatGentle1 4.8s ease-in-out infinite;
+    will-change: transform;
+  }
+  .animate-card-float-2 {
+    animation: cardFloatGentle2 5.4s ease-in-out infinite 0.9s;
+    will-change: transform;
+  }
+  .animate-card-float-3 {
+    animation: cardFloatGentle3 5.0s ease-in-out infinite 1.8s;
+    will-change: transform;
+  }
+
+  .animate-card-float-1:hover,
+  .animate-card-float-2:hover,
+  .animate-card-float-3:hover {
+    animation-play-state: paused;
+  }
+}
+

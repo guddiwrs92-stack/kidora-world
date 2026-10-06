@@ -17,6 +17,7 @@ import {
 import { PersonalisationState } from "../types";
 import { soundManager } from "../utils/audioSynthesizer";
 import confetti from "canvas-confetti";
+import mascotDragonImg from "../assets/images/assets/mascot-dragon.png";
 
 interface HeroSectionProps {
   personalisation: PersonalisationState;
@@ -28,8 +29,8 @@ interface HeroSectionProps {
 
 // Companion image map supporting Kidora mascot dragon and custom companions
 const COMPANION_IMAGE_MAP: Record<string, string> = {
-  "baby dragon": "/assets/mascot-dragon.png",
-  "dragon": "/assets/mascot-dragon.png",
+  "baby dragon": mascotDragonImg,
+  "dragon": mascotDragonImg,
   "robot": "/assets/companion-robot.png",
   "fox": "/assets/companion-fox.png",
   "bunny": "/assets/companion-bunny.png",
@@ -50,7 +51,7 @@ const cleanCompanionName = (petName: string): string => {
 
 const getCompanionImage = (petName: string): string | null => {
   const clean = cleanCompanionName(petName).toLowerCase();
-  if (clean.includes("dragon")) return "/assets/mascot-dragon.png";
+  if (clean.includes("dragon")) return mascotDragonImg;
   if (COMPANION_IMAGE_MAP[clean]) return COMPANION_IMAGE_MAP[clean];
   return null;
 };

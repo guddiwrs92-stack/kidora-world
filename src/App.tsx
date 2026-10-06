@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Navbar } from "./components/Navbar";
 import { HeroSection } from "./components/HeroSection";
+import { WhyParentsChooseSection } from "./components/WhyParentsChooseSection";
 import { PersonalisationStudio } from "./components/PersonalisationStudio";
 import { GamesPlayroom } from "./components/GamesPlayroom";
 import { WhatsAppMockupViewer } from "./components/WhatsAppMockupViewer";
@@ -117,6 +118,13 @@ export function App() {
           onPlaySample={handlePlaySample}
           isPlayingSample={isPlayingSample}
           onStopSample={handleStopSample}
+        />
+
+        {/* 1.5. Why Parents Choose Kidora Feature Section */}
+        <WhyParentsChooseSection
+          onOpenCreator={scrollToCreator}
+          onOpenPlayroom={() => setIsPlayroomModalOpen(true)}
+          onOpenBedtimeMode={() => setIsBedtimeOpen(true)}
         />
 
         {/* 2. Personalisation Creator Studio & Live Interactive Story Engine */}

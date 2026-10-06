@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState, useMemo } from "react";
+import mascotDragonImg from "../assets/images/assets/mascot-dragon.png";
 
 interface ScrollMascotProps {
   companionPet?: string;
@@ -296,33 +297,21 @@ export const ScrollMascot: React.FC<ScrollMascotProps> = ({
   const mascotSrc =
     isDragon && isScrolling && wingFrame === 1
       ? "/assets/mascot-dragon-flap.png"
-      : "/assets/mascot-dragon.png";
+      : mascotDragonImg;
 
   return (
     <>
-      {/* 1. Curvy Drawn Flight Line (SVG) down the page */}
+      {/* Invisible Flight Path SVG for mascot trajectory calculation */}
       <svg
-        className="absolute inset-0 w-full h-full pointer-events-none overflow-visible"
-        style={{ zIndex: 18 }}
+        className="absolute inset-0 w-full h-full pointer-events-none overflow-visible opacity-0"
+        style={{ zIndex: -1 }}
         aria-hidden="true"
       >
-        <defs>
-          <linearGradient id="kidoraFlightTrail" x1="0%" y1="0%" x2="0%" y2="100%">
-            <stop offset="0%" stopColor="#1A3BD4" stopOpacity="0.08" />
-            <stop offset="25%" stopColor="#1A3BD4" stopOpacity="0.22" />
-            <stop offset="55%" stopColor="#7F77DD" stopOpacity="0.22" />
-            <stop offset="85%" stopColor="#F5A623" stopOpacity="0.22" />
-            <stop offset="100%" stopColor="#25D366" stopOpacity="0.32" />
-          </linearGradient>
-        </defs>
         <path
           ref={pathRef}
           d={pathD}
           fill="none"
-          stroke="url(#kidoraFlightTrail)"
-          strokeWidth="2.5"
-          strokeDasharray="6 8"
-          strokeLinecap="round"
+          stroke="none"
         />
       </svg>
 

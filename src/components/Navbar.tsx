@@ -65,6 +65,12 @@ export const Navbar: React.FC<NavbarProps> = ({
               Home
             </a>
             <a
+              href="#features"
+              className="text-xs uppercase font-extrabold tracking-wider text-gray-700 hover:text-brand-primary transition-colors duration-200"
+            >
+              Why Kidora
+            </a>
+            <a
               href="#personalise"
               className="text-xs uppercase font-extrabold tracking-wider text-gray-700 hover:text-brand-primary transition-colors duration-200 flex items-center gap-1"
             >
@@ -188,6 +194,14 @@ export const Navbar: React.FC<NavbarProps> = ({
               >
                 <span>Home</span>
                 <span>🏠</span>
+              </a>
+              <a
+                href="#features"
+                onClick={() => setMobileMenuOpen(false)}
+                className="text-gray-800 font-bold py-2 hover:text-brand-primary text-sm flex items-center justify-between"
+              >
+                <span>Why Kidora (Features)</span>
+                <span>⭐</span>
               </a>
               <a
                 href="#personalise"

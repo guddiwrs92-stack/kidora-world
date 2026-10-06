@@ -69,6 +69,11 @@ export const Footer: React.FC<FooterProps> = ({
                 </a>
               </li>
               <li>
+                <a href="#features" className="hover:text-amber-400 transition-colors">
+                  Why Parents Choose Kidora
+                </a>
+              </li>
+              <li>
                 <a href="#personalise" className="hover:text-amber-400 transition-colors">
                   Personalisation Studio
                 </a>
