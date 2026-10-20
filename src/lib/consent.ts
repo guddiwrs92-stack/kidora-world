@@ -1,6 +1,6 @@
-import { GTM_ID } from "../config/analytics";
+import { GA_MEASUREMENT_ID } from "../config/analytics";
 
-export { GTM_ID };
+export { GA_MEASUREMENT_ID };
 export const CONSENT_KEY = "kidora_cookie_consent";
 export const CONSENT_EXPIRY_DAYS = 180;
 const EXPIRY_MS = CONSENT_EXPIRY_DAYS * 24 * 60 * 60 * 1000;
@@ -12,36 +12,53 @@ interface StoredConsent {
   expires: number;
 }
 
-let isTagManagerLoaded = false;
+let isAnalyticsLoaded = false;
 
-// Declare global dataLayer
+// Declare global dataLayer and gtag
 declare global {
   interface Window {
     dataLayer?: any[];
+    gtag?: (...args: any[]) => void;
   }
 }
 
 /**
- * Loads Google Tag Manager script once only after explicit visitor consent.
+ * Loads Google Analytics (gtag.js) script once only after explicit visitor consent.
+ * Configured with strict privacy flags (no Google Signals, no ad personalization, IP anonymized).
  */
-export function loadTagManager(): void {
-  if (isTagManagerLoaded || typeof window === "undefined") {
+export function loadGoogleAnalytics(): void {
+  if (isAnalyticsLoaded || typeof window === "undefined") {
     return;
   }
 
+  // 1. Create window.dataLayer = window.dataLayer || []; define function gtag(){dataLayer.push(arguments);}
   window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({
-    "gtm.start": new Date().getTime(),
-    event: "gtm.js"
+  function gtag(...args: any[]) {
+    window.dataLayer!.push(arguments);
+  }
+  window.gtag = gtag;
+
+  // 2. Call gtag('js', new Date());
+  gtag("js", new Date());
+
+  // 3. Call gtag('config', 'G-Q4NV9493NZ', { allow_google_signals: false, allow_ad_personalization_signals: false, anonymize_ip: true });
+  gtag("config", GA_MEASUREMENT_ID, {
+    allow_google_signals: false,
+    allow_ad_personalization_signals: false,
+    anonymize_ip: true
   });
 
+  // 4. Then inject an async <script> with src 'https://www.googletagmanager.com/gtag/js?id=G-Q4NV9493NZ' into document.head
   const script = document.createElement("script");
   script.async = true;
-  script.src = `https://www.googletagmanager.com/gtm.js?id=${GTM_ID}`;
+  script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
   document.head.appendChild(script);
 
-  isTagManagerLoaded = true;
+  isAnalyticsLoaded = true;
 }
+
+// Backward-compatible alias
+export const loadTagManager = loadGoogleAnalytics;
 
 /**
  * Reads the saved consent choice from localStorage.
@@ -95,14 +112,14 @@ export function setConsent(value: ConsentValue): void {
 
 /**
  * Initializes consent on page load.
- * If consent is 'accepted', calls loadTagManager().
+ * If consent is 'accepted', calls loadGoogleAnalytics().
  * If null, calls showBanner().
  * If 'declined', does nothing.
  */
 export function initConsent(showBanner: () => void): void {
   const current = getConsent();
   if (current === "accepted") {
-    loadTagManager();
+    loadGoogleAnalytics();
   } else if (current === null) {
     showBanner();
   }
@@ -110,11 +127,11 @@ export function initConsent(showBanner: () => void): void {
 }
 
 /**
- * Saves 'accepted' and calls loadTagManager().
+ * Saves 'accepted' and calls loadGoogleAnalytics().
  */
 export function accept(): void {
   setConsent("accepted");
-  loadTagManager();
+  loadGoogleAnalytics();
 }
 
 /**
@@ -146,6 +163,9 @@ export function trackGenericEvent(event: "page_view" | "click_order_button"): vo
   if (typeof window === "undefined") return;
   if (getConsent() !== "accepted") return;
 
-  window.dataLayer = window.dataLayer || [];
-  window.dataLayer.push({ event });
+  if (typeof window.gtag === "function") {
+    window.gtag("event", event);
+  } else if (window.dataLayer) {
+    window.dataLayer.push({ event });
+  }
 }
