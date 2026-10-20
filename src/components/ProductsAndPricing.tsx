@@ -1,17 +1,37 @@
 import React, { useState } from "react";
 import { MessageCircle, Check, Gift, ChevronDown, ChevronUp, Shield, Lock, EyeOff, Trash2 } from "lucide-react";
 import { soundManager } from "../utils/audioSynthesizer";
+import { buildCompliantWhatsAppMessage, getWhatsAppUrl } from "../config/contact";
+import { useOrderConsent } from "../context/OrderConsentContext";
+import { OrderConsentCheckbox } from "./OrderConsentCheckbox";
+import { PersonalisationState } from "../types";
+import { trackGenericEvent } from "../lib/consent";
 
 interface ProductsAndPricingProps {
-  whatsAppUrl: string;
-  childName: string;
+  personalisation: PersonalisationState;
+  onNavigateLegal?: (path: string) => void;
 }
 
 export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
-  whatsAppUrl,
-  childName
+  personalisation,
+  onNavigateLegal
 }) => {
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const { hasConsented, triggerWarning } = useOrderConsent();
+
+  const childFirstName = personalisation.name.trim().split(/\s+/)[0] || "Child";
+
+  const getPackWhatsAppUrl = (packTitle: string) => {
+    const message = buildCompliantWhatsAppMessage({
+      childName: childFirstName,
+      ageBand: personalisation.age,
+      interest: personalisation.interest,
+      value: personalisation.value,
+      learningGoal: personalisation.goal,
+      chosenPack: packTitle
+    });
+    return getWhatsAppUrl(message);
+  };
 
   const PRODUCTS = [
     {
@@ -24,8 +44,8 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
         "Personalised with child's name & interests",
         "High-fidelity MP3 delivered on WhatsApp",
         "Printable Lyrics Sheet PDF",
-        "Delivered in under 24 Hours",
-        "Satisfaction guarantee with free revisions"
+        "Delivered in 24-48 hours",
+        "1 free revision included"
       ],
       ctaText: "Order Magic Jingle",
       popular: false
@@ -41,10 +61,10 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
         "Illustrated 3-Chapter Storybook PDF",
         "Custom Moral Value & Life Lesson Focus",
         "Printable Explorer Certificate",
-        "Free revisions included",
-        "Fast 24-Hour WhatsApp Delivery"
+        "1 free revision included",
+        "Delivered in 24-48 hours"
       ],
-      ctaText: `Get Growth Duo for ${childName || "Child"}`,
+      ctaText: `Get Growth Duo for ${childFirstName}`,
       popular: true
     },
     {
@@ -59,7 +79,8 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
         "Personalised Birthday Trivia Game URL",
         "Gold Explorer Certificate",
         "High-Res WhatsApp Video Invitation Card",
-        "Priority 12-Hour Delivery"
+        "1 free revision included",
+        "Priority delivery"
       ],
       ctaText: "Order Birthday Mega Pack",
       popular: false
@@ -69,11 +90,11 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
   const FAQS = [
     {
       q: "How does the delivery process work on WhatsApp?",
-      a: "Once you place your order via WhatsApp, our creative team drafts and reviews your child's personalized audio and illustrated materials based on your inputs. Every piece is AI-assisted, human-reviewed before it reaches your child. Within 24 hours, you receive the high-fidelity audio MP3, printable PDF storybooks, and badges right inside your WhatsApp chat."
+      a: "Once you place your order via WhatsApp, our creative team drafts and reviews your child's personalized audio and illustrated materials based on your inputs. Every piece is AI-assisted, human-reviewed before it reaches your child. Within 24-48 hours, you receive the high-fidelity audio MP3, printable PDF storybooks, and badges right inside your WhatsApp chat."
     },
     {
       q: "Can I request changes if my child's name pronunciation is unique?",
-      a: "Absolutely! When you order on WhatsApp, you can send a 5-second voice note of how your child's name is pronounced. If any detail needs tuning, we provide free revisions until you and your child are happy."
+      a: "Absolutely! When you order on WhatsApp, you can send a 5-second voice note of how your child's name is pronounced. If any detail needs tuning, we provide 1 free revision for name pronunciation or small details."
     },
     {
       q: "Are the games and stories safe for screen time?",
@@ -85,26 +106,37 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
     }
   ];
 
+  const handleOrderClick = (e: React.MouseEvent<HTMLAnchorElement>, packTitle: string) => {
+    if (!hasConsented) {
+      e.preventDefault();
+      soundManager.playSoundEffect("pop");
+      triggerWarning();
+    } else {
+      soundManager.playSoundEffect("victory");
+      trackGenericEvent("click_order_button");
+    }
+  };
+
   return (
     <section id="products" className="py-16 md:py-24 bg-white relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Header */}
-        <div className="text-center max-w-3xl mx-auto space-y-3 mb-14">
+        <div className="text-center max-w-3xl mx-auto space-y-3 mb-12">
           <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-brand-primary/10 text-brand-primary rounded-full text-xs font-black uppercase tracking-widest">
             <Gift className="w-3.5 h-3.5" />
-            <span>Transparent Pricing & Plans</span>
+            <span>Transparent Pricing &amp; Plans</span>
           </span>
           <h2 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-brand-text">
-            Simple, honest pricing. Delivered in 24h.
+            Simple, honest pricing. Delivered in 24-48 hours.
           </h2>
           <p className="text-gray-600 text-sm sm:text-base font-medium">
-            No subscriptions or hidden fees. One-time payment with instant WhatsApp delivery.
+            No subscriptions or hidden fees. One-time payment with verified WhatsApp delivery.
           </p>
         </div>
 
         {/* Pricing Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20 items-stretch">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-4 items-stretch">
           {PRODUCTS.map((prod) => (
             <div
               key={prod.id}
@@ -132,7 +164,7 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
 
                 <p className="text-xs text-gray-500 font-medium mb-4">{prod.desc}</p>
 
-                {/* Real Price Display without crossed-out prices */}
+                {/* Real Price Display */}
                 <div className="flex items-baseline space-x-2 mb-6">
                   <span className="font-display text-4xl font-black text-brand-text">{prod.price}</span>
                   <span className="text-[11px] font-bold text-emerald-700 uppercase bg-emerald-50 px-2.5 py-0.5 rounded-full">
@@ -141,7 +173,7 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
                 </div>
 
                 {/* Features list */}
-                <div className="space-y-2.5 mb-8">
+                <div className="space-y-2.5 mb-6">
                   {prod.features.map((feat, i) => (
                     <div key={i} className="flex items-start space-x-2 text-xs font-semibold text-gray-700">
                       <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
@@ -151,26 +183,46 @@ export const ProductsAndPricing: React.FC<ProductsAndPricingProps> = ({
                 </div>
               </div>
 
-              <a
-                href={whatsAppUrl}
-                target="_blank"
-                referrerPolicy="no-referrer"
-                onClick={() => soundManager.playSoundEffect("victory")}
-                className={`w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 transition-all cursor-pointer ${
-                  prod.popular
-                    ? "bg-[#25D366] hover:bg-[#20ba59] text-white shadow-lg shadow-emerald-500/20"
-                    : "bg-gray-900 hover:bg-black text-white"
-                }`}
-              >
-                <MessageCircle className="w-4 h-4 fill-current" />
-                <span>{prod.ctaText}</span>
-              </a>
+              {/* Order Consent Checkbox before button */}
+              <div className="mt-auto space-y-3 pt-4 border-t border-gray-100">
+                <OrderConsentCheckbox
+                  id={`consent-card-${prod.id}`}
+                  textClassName="text-[11px] text-gray-600 font-medium"
+                  onNavigateLegal={onNavigateLegal}
+                />
+
+                <a
+                  href={getPackWhatsAppUrl(prod.title)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  referrerPolicy="no-referrer"
+                  onClick={(e) => handleOrderClick(e, prod.title)}
+                  aria-disabled={!hasConsented}
+                  className={`w-full py-3.5 rounded-2xl text-xs font-black uppercase tracking-wider flex items-center justify-center space-x-2 transition-all ${
+                    !hasConsented
+                      ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300"
+                      : prod.popular
+                      ? "bg-[#25D366] hover:bg-[#20ba59] text-white shadow-lg shadow-emerald-500/20 cursor-pointer"
+                      : "bg-gray-900 hover:bg-black text-white cursor-pointer"
+                  }`}
+                >
+                  <MessageCircle className="w-4 h-4 fill-current" />
+                  <span>{prod.ctaText}</span>
+                </a>
+              </div>
             </div>
           ))}
         </div>
 
+        {/* Small Note Under Pricing: "Prices are in ₹ and shown without GST." */}
+        <div className="text-center mb-16">
+          <p className="text-xs sm:text-sm font-semibold text-gray-500">
+            Prices are in ₹ and shown without GST.
+          </p>
+        </div>
+
         {/* TRUST SECTION: How we treat your child's information */}
-        <div className="max-w-3xl mx-auto mb-16 p-6 sm:p-8 bg-linear-to-b from-indigo-50/70 to-white rounded-3xl border-2 border-indigo-100/80 shadow-sm">
+        <div className="max-w-3xl mx-auto mb-16 p-6 sm:p-8 bg-linear-to-b from-indigo-50/70 to-white rounded-3xl border-2 border-indigo-100/80 shadow-xs">
           <div className="flex items-center space-x-2.5 mb-4">
             <div className="w-8 h-8 rounded-xl bg-brand-primary text-white flex items-center justify-center">
               <Shield className="w-4 h-4" />

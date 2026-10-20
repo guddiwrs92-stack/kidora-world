@@ -12,12 +12,16 @@ import {
   Heart,
   Smile,
   Music,
-  Compass
+  Compass,
+  MessageCircle
 } from "lucide-react";
 import { PersonalisationState } from "../types";
 import { soundManager } from "../utils/audioSynthesizer";
 import confetti from "canvas-confetti";
 import mascotDragonImg from "../assets/images/assets/mascot-dragon.png";
+import { useOrderConsent } from "../context/OrderConsentContext";
+import { OrderConsentCheckbox } from "./OrderConsentCheckbox";
+import { buildCompliantWhatsAppMessage, getWhatsAppUrl } from "../config/contact";
 
 interface HeroSectionProps {
   personalisation: PersonalisationState;
@@ -25,6 +29,7 @@ interface HeroSectionProps {
   onPlaySample: () => void;
   isPlayingSample: boolean;
   onStopSample: () => void;
+  onNavigateLegal?: (path: string) => void;
 }
 
 // Companion image map supporting Kidora mascot dragon and custom companions
@@ -61,8 +66,10 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   onOpenCreator,
   onPlaySample,
   isPlayingSample,
-  onStopSample
+  onStopSample,
+  onNavigateLegal
 }) => {
+  const { hasConsented, triggerWarning } = useOrderConsent();
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const heroCtaRef = useRef<HTMLButtonElement | null>(null);
   const [heroCtaStyle, setHeroCtaStyle] = useState<React.CSSProperties>({});
@@ -346,11 +353,20 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
 
             {/* Sub-headline */}
             <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed font-medium">
-              Transform random phone scrolling into confidence, moral values, and vocabulary growth. Delivered directly to your WhatsApp in 24 hours.
+              Transform random phone scrolling into confidence, moral values, and vocabulary growth. Delivered directly to your WhatsApp in 24-48 hours.
             </p>
 
+            {/* Parent Guardian Order Consent Checkbox */}
+            <div className="pt-2 max-w-xl mx-auto lg:mx-0">
+              <OrderConsentCheckbox
+                id="consent-hero-section"
+                textClassName="text-xs text-gray-700 font-semibold"
+                onNavigateLegal={onNavigateLegal}
+              />
+            </div>
+
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4 pt-2">
+            <div className="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-3 pt-1">
               <button
                 id="btn-hero-order"
                 ref={heroCtaRef}
@@ -359,11 +375,47 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   triggerConfettiExplosion(e);
                   onOpenCreator();
                 }}
-                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-4 bg-brand-primary hover:bg-brand-primary/95 text-white text-base font-black rounded-2xl shadow-xl shadow-brand-primary/25 hover:shadow-2xl transition-all cursor-pointer"
+                className="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3.5 bg-brand-primary hover:bg-brand-primary/95 text-white text-sm sm:text-base font-black rounded-2xl shadow-xl shadow-brand-primary/25 hover:shadow-2xl transition-all cursor-pointer"
               >
                 <span>Customize For {childName} Now</span>
-                <ArrowRight className="w-5 h-5 ml-2" />
+                <ArrowRight className="w-4 h-4 ml-2" />
               </button>
+
+              <a
+                id="btn-hero-order-whatsapp"
+                href={getWhatsAppUrl(
+                  buildCompliantWhatsAppMessage({
+                    childName,
+                    ageBand: personalisation.age,
+                    interest: personalisation.interest,
+                    value: personalisation.value,
+                    learningGoal: personalisation.goal,
+                    chosenPack: "Growth Duo Pack"
+                  })
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerPolicy="no-referrer"
+                onClick={(e) => {
+                  if (!hasConsented) {
+                    e.preventDefault();
+                    soundManager.playSoundEffect("pop");
+                    triggerWarning();
+                  } else {
+                    triggerConfettiExplosion(e);
+                    soundManager.playSoundEffect("victory");
+                  }
+                }}
+                aria-disabled={!hasConsented}
+                className={`w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-black rounded-2xl transition-all ${
+                  !hasConsented
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300 shadow-none"
+                    : "bg-[#25D366] hover:bg-[#20ba59] text-white shadow-xl shadow-emerald-500/20 hover:shadow-2xl cursor-pointer"
+                }`}
+              >
+                <MessageCircle className="w-4 h-4 mr-1.5 fill-current" />
+                <span>Order on WhatsApp</span>
+              </a>
 
               <button
                 id="btn-hero-sample"
@@ -375,7 +427,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                     onPlaySample();
                   }
                 }}
-                className={`w-full sm:w-auto inline-flex items-center justify-center px-7 py-4 text-base font-extrabold rounded-2xl border-2 transition-all cursor-pointer ${
+                className={`w-full sm:w-auto inline-flex items-center justify-center px-6 py-3.5 text-sm sm:text-base font-extrabold rounded-2xl border-2 transition-all cursor-pointer ${
                   isPlayingSample
                     ? "bg-amber-50 border-brand-accent1 text-brand-accent1 ring-4 ring-brand-accent1/20"
                     : "bg-white border-brand-accent2/30 text-brand-accent2 hover:bg-brand-accent2/5 hover:border-brand-accent2"

@@ -158,6 +158,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({
           <a
             href={whatsAppUrl}
             target="_blank"
+            rel="noopener noreferrer"
             referrerPolicy="no-referrer"
             className="text-xs text-brand-primary font-bold hover:underline"
           >

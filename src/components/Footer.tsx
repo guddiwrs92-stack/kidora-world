@@ -1,22 +1,28 @@
 import React from "react";
-import { Star, MessageCircle, Heart, Shield, Sparkles, Mail, Phone } from "lucide-react";
+import { Star, MessageCircle } from "lucide-react";
+import { CONTACT_CONFIG, getWhatsAppUrl } from "../config/contact";
 import { soundManager } from "../utils/audioSynthesizer";
+import { resetConsent } from "../lib/consent";
 
 interface FooterProps {
-  whatsAppUrl: string;
   onOpenBedtimeMode: () => void;
   onOpenPlayroom: () => void;
-  onOpenPrivacy?: () => void;
-  onOpenTerms?: () => void;
+  onNavigatePrivacy: () => void;
+  onNavigateTerms: () => void;
+  onOpenCookieSettings?: () => void;
 }
 
 export const Footer: React.FC<FooterProps> = ({
-  whatsAppUrl,
   onOpenBedtimeMode,
   onOpenPlayroom,
-  onOpenPrivacy,
-  onOpenTerms
+  onNavigatePrivacy,
+  onNavigateTerms,
+  onOpenCookieSettings
 }) => {
+  const whatsAppGeneralUrl = getWhatsAppUrl(
+    "Hello Kidora Team! 🌟 I have a question about your personalized stories and songs."
+  );
+
   return (
     <footer className="bg-zinc-950 text-zinc-300 pt-16 pb-12 border-t border-zinc-800">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,16 +46,21 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="flex items-center space-x-3 pt-2">
               <a
-                href={whatsAppUrl}
+                href={whatsAppGeneralUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 referrerPolicy="no-referrer"
-                className="inline-flex items-center px-4 py-2 bg-[#25D366] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md"
+                onClick={() => soundManager.playSoundEffect("victory")}
+                className="inline-flex items-center px-4 py-2 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md transition-all cursor-pointer"
               >
                 <MessageCircle className="w-4 h-4 mr-1.5 fill-white text-[#25D366]" />
-                WhatsApp Us
+                WhatsApp Us ({CONTACT_CONFIG.whatsappDisplay})
               </a>
               <button
-                onClick={onOpenPlayroom}
+                onClick={() => {
+                  soundManager.playSoundEffect("pop");
+                  onOpenPlayroom();
+                }}
                 className="px-4 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-bold rounded-xl transition-all cursor-pointer"
               >
                 Launch Playroom 🎮
@@ -64,56 +75,63 @@ export const Footer: React.FC<FooterProps> = ({
             </h4>
             <ul className="space-y-2 text-xs text-zinc-400">
               <li>
-                <a href="#home" className="hover:text-amber-400 transition-colors">
+                <a href="/#home" className="hover:text-amber-400 transition-colors">
                   Home Overview
                 </a>
               </li>
               <li>
-                <a href="#features" className="hover:text-amber-400 transition-colors">
+                <a href="/#features" className="hover:text-amber-400 transition-colors">
                   Why Parents Choose Kidora
                 </a>
               </li>
               <li>
-                <a href="#personalise" className="hover:text-amber-400 transition-colors">
+                <a href="/#personalise" className="hover:text-amber-400 transition-colors">
                   Personalisation Studio
                 </a>
               </li>
               <li>
-                <a href="#games" className="hover:text-amber-400 transition-colors">
+                <a href="/#games" className="hover:text-amber-400 transition-colors">
                   Playroom Games (4 Modes)
                 </a>
               </li>
               <li>
-                <a href="#calculator" className="hover:text-amber-400 transition-colors">
+                <a href="/#calculator" className="hover:text-amber-400 transition-colors">
                   Screen Time Impact Calculator
                 </a>
               </li>
               <li>
-                <a href="#products" className="hover:text-amber-400 transition-colors">
-                  Pricing & Packs
+                <a href="/#products" className="hover:text-amber-400 transition-colors">
+                  Pricing &amp; Packs
                 </a>
               </li>
             </ul>
           </div>
 
-          {/* Col 3: Schools & Contact */}
+          {/* Col 3: Contact & Legal */}
           <div className="lg:col-span-4 space-y-3">
             <h4 className="font-display text-xs font-black uppercase tracking-widest text-white">
-              Schools & Preschools
+              Contact &amp; Location
             </h4>
             <p className="text-xs text-zinc-400 leading-relaxed">
-              Looking for custom preschool graduation anthems, annual day songs, or student birthday packs?
+              Based in {CONTACT_CONFIG.location}.
             </p>
-            <div className="p-3 bg-zinc-900 rounded-xl border border-zinc-800 text-xs text-zinc-300 flex items-center justify-between">
-              <span>Bulk School Inquiries</span>
-              <a
-                href={whatsAppUrl}
-                target="_blank"
-                referrerPolicy="no-referrer"
-                className="text-amber-400 font-bold hover:underline"
+            <p className="text-xs text-zinc-400">
+              Email: <a href={`mailto:${CONTACT_CONFIG.email}`} className="text-amber-300 hover:underline">{CONTACT_CONFIG.email}</a>
+            </p>
+            <p className="text-xs text-zinc-400">
+              WhatsApp: <a href={whatsAppGeneralUrl} target="_blank" rel="noopener noreferrer" className="text-amber-300 hover:underline">{CONTACT_CONFIG.whatsappDisplay}</a>
+            </p>
+            <div className="pt-2">
+              <button
+                type="button"
+                onClick={() => {
+                  soundManager.playSoundEffect("click");
+                  resetConsent();
+                }}
+                className="px-3.5 py-1.5 bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-white rounded-lg text-xs font-bold border border-zinc-800 transition-colors cursor-pointer"
               >
-                Inquire on WhatsApp →
-              </a>
+                Cookie settings 🍪
+              </button>
             </div>
           </div>
 
@@ -121,27 +139,45 @@ export const Footer: React.FC<FooterProps> = ({
 
         {/* Bottom Bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-zinc-500">
-          <p>© {new Date().getFullYear()} Kidora. All rights reserved. No ads. No autoplay. Reviewed by a person before it reaches your child.</p>
+          <p>© 2026 Kidora. All rights reserved. No ads. No autoplay. Reviewed by a person before it reaches your child.</p>
           <div className="flex items-center space-x-3 flex-wrap justify-center">
-            {onOpenPrivacy && (
-              <button
-                onClick={onOpenPrivacy}
-                className="hover:text-zinc-300 underline cursor-pointer"
-              >
-                Privacy Policy
-              </button>
-            )}
+            <a
+              href="/privacy"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigatePrivacy();
+              }}
+              className="text-zinc-400 hover:text-white underline cursor-pointer"
+            >
+              Privacy Policy
+            </a>
             <span>•</span>
-            {onOpenTerms && (
-              <button
-                onClick={onOpenTerms}
-                className="hover:text-zinc-300 underline cursor-pointer"
-              >
-                Terms of Service
-              </button>
-            )}
+            <a
+              href="/terms"
+              onClick={(e) => {
+                e.preventDefault();
+                onNavigateTerms();
+              }}
+              className="text-zinc-400 hover:text-white underline cursor-pointer"
+            >
+              Terms &amp; Refunds
+            </a>
             <span>•</span>
-            <button onClick={onOpenBedtimeMode} className="hover:text-zinc-300 cursor-pointer">
+            <button
+              type="button"
+              onClick={() => {
+                soundManager.playSoundEffect("click");
+                resetConsent();
+              }}
+              className="text-zinc-400 hover:text-white underline cursor-pointer"
+            >
+              Cookie settings
+            </button>
+            <span>•</span>
+            <button
+              onClick={onOpenBedtimeMode}
+              className="hover:text-zinc-300 cursor-pointer"
+            >
               Bedtime Mode 🌙
             </button>
           </div>

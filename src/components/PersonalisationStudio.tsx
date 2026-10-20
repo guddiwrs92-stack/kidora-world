@@ -21,20 +21,27 @@ import { soundManager } from "../utils/audioSynthesizer";
 import { speechVoice } from "../utils/speechVoice";
 import { generatePersonalizedStory } from "../utils/geminiStoryGenerator";
 import confetti from "canvas-confetti";
+import { useOrderConsent } from "../context/OrderConsentContext";
+import { OrderConsentCheckbox } from "./OrderConsentCheckbox";
+import { trackGenericEvent } from "../lib/consent";
+import { buildCompliantWhatsAppMessage, getWhatsAppUrl } from "../config/contact";
 
 interface PersonalisationStudioProps {
   personalisation: PersonalisationState;
   onUpdatePersonalisation: (updater: (prev: PersonalisationState) => PersonalisationState) => void;
   onOpenCertificate: () => void;
   whatsAppUrl: string;
+  onNavigateLegal?: (path: string) => void;
 }
 
 export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
   personalisation,
   onUpdatePersonalisation,
   onOpenCertificate,
-  whatsAppUrl
+  whatsAppUrl,
+  onNavigateLegal
 }) => {
+  const { hasConsented, triggerWarning } = useOrderConsent();
   const [activeTab, setActiveTab] = useState<"profile" | "avatar" | "music">("profile");
   const [musicTheme, setMusicTheme] = useState<MusicTheme>("chimes");
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
@@ -514,28 +521,60 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
               )}
 
               {/* Action Buttons below form */}
-              <div className="pt-4 border-t border-gray-100 flex items-center gap-3">
-                <button
-                  type="button"
-                  onClick={() => {
-                    soundManager.playSoundEffect("starDing");
-                    onOpenCertificate();
-                  }}
-                  className="flex-1 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black uppercase tracking-wider border border-emerald-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
-                >
-                  <Award className="w-4 h-4" />
-                  View Certificate
-                </button>
-                <a
-                  href={whatsAppUrl}
-                  target="_blank"
-                  referrerPolicy="no-referrer"
-                  onClick={() => soundManager.playSoundEffect("victory")}
-                  className="flex-1 py-3 px-4 bg-[#25D366] hover:bg-[#20ba59] text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5 transition-all"
-                >
-                  <MessageCircle className="w-4 h-4" />
-                  Order on WhatsApp
-                </a>
+              <div className="pt-4 border-t border-gray-100 space-y-3">
+                <OrderConsentCheckbox
+                  id="consent-studio-form"
+                  textClassName="text-[11px] text-gray-600 font-medium"
+                  onNavigateLegal={onNavigateLegal}
+                />
+
+                <div className="flex items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      soundManager.playSoundEffect("starDing");
+                      onOpenCertificate();
+                    }}
+                    className="flex-1 py-3 px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 rounded-xl text-xs font-black uppercase tracking-wider border border-emerald-200 flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                  >
+                    <Award className="w-4 h-4" />
+                    View Certificate
+                  </button>
+                  <a
+                    href={getWhatsAppUrl(
+                      buildCompliantWhatsAppMessage({
+                        childName: personalisation.name,
+                        ageBand: personalisation.age,
+                        interest: personalisation.interest,
+                        value: personalisation.value,
+                        learningGoal: personalisation.goal,
+                        chosenPack: "Growth Duo Pack"
+                      })
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    referrerPolicy="no-referrer"
+                    onClick={(e) => {
+                      if (!hasConsented) {
+                        e.preventDefault();
+                        soundManager.playSoundEffect("pop");
+                        triggerWarning();
+                      } else {
+                        soundManager.playSoundEffect("victory");
+                        trackGenericEvent("click_order_button");
+                      }
+                    }}
+                    aria-disabled={!hasConsented}
+                    className={`flex-1 py-3 px-4 rounded-xl text-xs font-black uppercase tracking-wider shadow-md flex items-center justify-center gap-1.5 transition-all ${
+                      !hasConsented
+                        ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300"
+                        : "bg-[#25D366] hover:bg-[#20ba59] text-white cursor-pointer"
+                    }`}
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Order on WhatsApp
+                  </a>
+                </div>
               </div>
 
             </div>
@@ -608,7 +647,7 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
                     Custom Singalong Jingle for {story.childName}
                   </span>
                   <span className="text-[10px] font-mono text-gray-500">
-                    24h WhatsApp Delivery
+                    24-48h WhatsApp Delivery
                   </span>
                 </div>
 
@@ -729,7 +768,7 @@ export const PersonalisationStudio: React.FC<PersonalisationStudioProps> = ({
 
               {/* Bottom WhatsApp Order banner */}
               <div className="mt-4 pt-3 flex items-center justify-between text-xs text-gray-500 font-semibold">
-                <span>Personalized Delivery within 24 Hours</span>
+                <span>Personalized Delivery within 24-48 Hours</span>
                 <span className="text-brand-primary font-bold">Starts at ₹299 Flat</span>
               </div>
 

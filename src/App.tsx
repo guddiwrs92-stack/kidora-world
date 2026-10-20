@@ -11,22 +11,38 @@ import { TestimonialsSection } from "./components/TestimonialsSection";
 import { Footer } from "./components/Footer";
 import { BedtimeModeModal } from "./components/BedtimeModeModal";
 import { CertificateBuilder } from "./components/CertificateBuilder";
-import { LegalModal } from "./components/LegalModal";
 import { ScrollMascot } from "./components/ScrollMascot";
 import { PersonalisationState } from "./types";
 import { soundManager } from "./utils/audioSynthesizer";
-import { MessageCircle, Gamepad2, Sparkles, Moon } from "lucide-react";
+import { MessageCircle, Gamepad2 } from "lucide-react";
+import { buildCompliantWhatsAppMessage, getWhatsAppUrl, CONTACT_CONFIG } from "./config/contact";
+import { OrderConsentProvider, useOrderConsent } from "./context/OrderConsentContext";
+import { OrderConsentWarningModal } from "./components/OrderConsentCheckbox";
+import { CookieBanner } from "./components/CookieBanner";
+import { PrivacyPolicyPage } from "./pages/PrivacyPolicyPage";
+import { TermsPage } from "./pages/TermsPage";
+import { trackGenericEvent } from "./lib/consent";
 
-export function App() {
+function MainAppContent() {
   const [scrolled, setScrolled] = useState(false);
   const [isMuted, setIsMuted] = useState(false);
   const [isPlayingSample, setIsPlayingSample] = useState(false);
+  const [isCookieBannerVisible, setIsCookieBannerVisible] = useState(false);
+
+  // Client-side routing for /privacy and /terms
+  const [currentPath, setCurrentPath] = useState<string>(() => {
+    if (typeof window !== "undefined") {
+      return window.location.pathname;
+    }
+    return "/";
+  });
+
+  const { hasConsented, triggerWarning } = useOrderConsent();
 
   // Modals
   const [isBedtimeOpen, setIsBedtimeOpen] = useState(false);
   const [isPlayroomModalOpen, setIsPlayroomModalOpen] = useState(false);
   const [isCertificateOpen, setIsCertificateOpen] = useState(false);
-  const [legalModalTab, setLegalModalTab] = useState<"privacy" | "terms" | null>(null);
 
   // Core personalization state
   const [personalisation, setPersonalisation] = useState<PersonalisationState>({
@@ -44,7 +60,31 @@ export function App() {
     }
   });
 
-  // Handle scroll detection for sticky glass navbar
+  // Handle URL change detection (back/forward navigation)
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPath(window.location.pathname);
+    };
+    window.addEventListener("popstate", handlePopState);
+    return () => window.removeEventListener("popstate", handlePopState);
+  }, []);
+
+  // Track generic page_view (strictly no personal info, parameters or child data)
+  useEffect(() => {
+    trackGenericEvent("page_view");
+  }, [currentPath]);
+
+  const navigateTo = (path: string) => {
+    try {
+      window.history.pushState(null, "", path);
+    } catch {
+      // fallback
+    }
+    setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
+  // Scroll detection for sticky navbar
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 30);
@@ -71,18 +111,18 @@ export function App() {
     setIsPlayingSample(false);
   };
 
-  // Pre-configured WhatsApp direct link with child parameters
-  const childName = personalisation.name.trim() || "Arjun";
-  const whatsappMsg = encodeURIComponent(
-    `Hello Kidora Team! 🌟 I'd like to order a personalised pack for my child:\n\n` +
-    `• Child Name: ${childName}\n` +
-    `• Age: ${personalisation.age}\n` +
-    `• Interest: ${personalisation.interest}\n` +
-    `• Moral Value: ${personalisation.value}\n` +
-    `• Companion: ${personalisation.avatar.companionPet}\n\n` +
-    `Please share sample details & next steps!`
-  );
-  const whatsAppUrl = `https://wa.me/919999999999?text=${whatsappMsg}`;
+  const childFirstName = personalisation.name.trim().split(/\s+/)[0] || "Arjun";
+
+  // Strict compliant WhatsApp order message builder
+  const whatsappMsg = buildCompliantWhatsAppMessage({
+    childName: childFirstName,
+    ageBand: personalisation.age,
+    interest: personalisation.interest,
+    value: personalisation.value,
+    learningGoal: personalisation.goal,
+    chosenPack: "Growth Duo Pack"
+  });
+  const whatsAppUrl = getWhatsAppUrl(whatsappMsg);
 
   const scrollToCreator = () => {
     const el = document.getElementById("personalise");
@@ -91,8 +131,54 @@ export function App() {
     }
   };
 
+  const handleFloatingWhatsAppClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasConsented) {
+      e.preventDefault();
+      soundManager.playSoundEffect("pop");
+      triggerWarning();
+    } else {
+      soundManager.playSoundEffect("victory");
+      trackGenericEvent("click_order_button");
+    }
+  };
+
+  // Route: /privacy
+  if (currentPath === "/privacy") {
+    return (
+      <>
+        <PrivacyPolicyPage
+          onBackToHome={() => navigateTo("/")}
+          onNavigateTerms={() => navigateTo("/terms")}
+        />
+        <CookieBanner
+          onNavigatePrivacy={() => navigateTo("/privacy")}
+          onVisibilityChange={setIsCookieBannerVisible}
+        />
+        <OrderConsentWarningModal />
+      </>
+    );
+  }
+
+  // Route: /terms
+  if (currentPath === "/terms") {
+    return (
+      <>
+        <TermsPage
+          onBackToHome={() => navigateTo("/")}
+          onNavigatePrivacy={() => navigateTo("/privacy")}
+        />
+        <CookieBanner
+          onNavigatePrivacy={() => navigateTo("/privacy")}
+          onVisibilityChange={setIsCookieBannerVisible}
+        />
+        <OrderConsentWarningModal />
+      </>
+    );
+  }
+
+  // Main Home Page
   return (
-    <div className="min-h-screen flex flex-col font-sans bg-[#FAFAF8] text-[#1A1A2E] selection:bg-brand-primary selection:text-white relative">
+    <div className="min-h-screen flex flex-col font-sans bg-[#FAF9F5] text-[#1A1A2E] selection:bg-brand-primary selection:text-white relative">
       
       {/* Scroll-Driven Flying Mascot Animation & Trail */}
       <ScrollMascot companionPet={personalisation.avatar.companionPet} />
@@ -106,6 +192,7 @@ export function App() {
         onOpenPlayroom={() => setIsPlayroomModalOpen(true)}
         onOpenCertificate={() => setIsCertificateOpen(true)}
         whatsAppUrl={whatsAppUrl}
+        onNavigateLegal={navigateTo}
       />
 
       {/* Main Content Sections */}
@@ -118,6 +205,7 @@ export function App() {
           onPlaySample={handlePlaySample}
           isPlayingSample={isPlayingSample}
           onStopSample={handleStopSample}
+          onNavigateLegal={navigateTo}
         />
 
         {/* 1.5. Why Parents Choose Kidora Feature Section */}
@@ -133,6 +221,7 @@ export function App() {
           onUpdatePersonalisation={setPersonalisation}
           onOpenCertificate={() => setIsCertificateOpen(true)}
           whatsAppUrl={whatsAppUrl}
+          onNavigateLegal={navigateTo}
         />
 
         {/* 3. In-Browser Educational Games Playroom */}
@@ -141,7 +230,7 @@ export function App() {
         {/* 4. WhatsApp Delivery Smartphone Mockup */}
         <WhatsAppMockupViewer
           personalisation={personalisation}
-          whatsAppUrl={whatsAppUrl}
+          onNavigateLegal={navigateTo}
         />
 
         {/* 5. Parent Screen Time vs. Growth Analyzer */}
@@ -149,8 +238,8 @@ export function App() {
 
         {/* 6. Products, Pricing Tiers & FAQ */}
         <ProductsAndPricing
-          whatsAppUrl={whatsAppUrl}
-          childName={childName}
+          personalisation={personalisation}
+          onNavigateLegal={navigateTo}
         />
 
         {/* 7. Parent Reviews & Testimonials */}
@@ -160,15 +249,18 @@ export function App() {
 
       {/* Footer */}
       <Footer
-        whatsAppUrl={whatsAppUrl}
         onOpenBedtimeMode={() => setIsBedtimeOpen(true)}
         onOpenPlayroom={() => setIsPlayroomModalOpen(true)}
-        onOpenPrivacy={() => setLegalModalTab("privacy")}
-        onOpenTerms={() => setLegalModalTab("terms")}
+        onNavigatePrivacy={() => navigateTo("/privacy")}
+        onNavigateTerms={() => navigateTo("/terms")}
       />
 
-      {/* Floating Sticky Actions (WhatsApp + Playroom trigger) */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end space-y-3">
+      {/* Floating Sticky Actions (WhatsApp + Playroom trigger) - clearance prevents covering banner */}
+      <div
+        className={`fixed ${
+          isCookieBannerVisible ? "bottom-36 sm:bottom-6" : "bottom-6"
+        } right-6 z-40 flex flex-col items-end space-y-3 transition-all duration-300`}
+      >
         
         {/* Quick Playroom Trigger */}
         <button
@@ -191,9 +283,11 @@ export function App() {
             id="floating-whatsapp-btn"
             href={whatsAppUrl}
             target="_blank"
+            rel="noopener noreferrer"
             referrerPolicy="no-referrer"
-            onClick={() => soundManager.playSoundEffect("victory")}
-            className="w-14 h-14 bg-[#25D366] hover:bg-[#20ba59] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 transition-all relative z-10"
+            onClick={handleFloatingWhatsAppClick}
+            aria-label={`Chat & Order on WhatsApp (${CONTACT_CONFIG.whatsappDisplay})`}
+            className="w-14 h-14 bg-[#25D366] hover:bg-[#20ba59] rounded-full flex items-center justify-center text-white shadow-xl hover:scale-105 transition-all relative z-10 cursor-pointer"
             title="Chat & Order on WhatsApp"
           >
             <MessageCircle className="w-7 h-7 fill-white text-[#25D366]" />
@@ -226,16 +320,24 @@ export function App() {
         />
       )}
 
-      {/* Legal Modal (Privacy Policy & Terms) */}
-      {legalModalTab && (
-        <LegalModal
-          initialTab={legalModalTab}
-          onClose={() => setLegalModalTab(null)}
-          whatsAppUrl={whatsAppUrl}
-        />
-      )}
+      {/* Cookie Consent Banner */}
+      <CookieBanner
+        onNavigatePrivacy={() => navigateTo("/privacy")}
+        onVisibilityChange={setIsCookieBannerVisible}
+      />
+
+      {/* Order Consent Warning Modal */}
+      <OrderConsentWarningModal />
 
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <OrderConsentProvider>
+      <MainAppContent />
+    </OrderConsentProvider>
   );
 }
 

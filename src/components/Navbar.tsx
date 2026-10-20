@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Star, MessageCircle, Menu, X, Volume2, VolumeX, Moon, Sparkles, Gamepad2, Award } from "lucide-react";
 import { soundManager } from "../utils/audioSynthesizer";
 import { motion, AnimatePresence } from "motion/react";
+import { useOrderConsent } from "../context/OrderConsentContext";
+import { OrderConsentCheckbox } from "./OrderConsentCheckbox";
 
 interface NavbarProps {
   scrolled: boolean;
@@ -11,6 +13,7 @@ interface NavbarProps {
   onOpenPlayroom: () => void;
   onOpenCertificate: () => void;
   whatsAppUrl: string;
+  onNavigateLegal?: (path: string) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -20,8 +23,10 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenBedtimeMode,
   onOpenPlayroom,
   onOpenCertificate,
-  whatsAppUrl
+  whatsAppUrl,
+  onNavigateLegal
 }) => {
+  const { hasConsented, triggerWarning } = useOrderConsent();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -150,18 +155,34 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
 
             {/* WhatsApp Order Button */}
-            <a
-              id="btn-nav-order"
-              href={whatsAppUrl}
-              target="_blank"
-              referrerPolicy="no-referrer"
-              aria-label="Order on WhatsApp"
-              onClick={() => soundManager.playSoundEffect("victory")}
-              className="min-h-[44px] hidden sm:inline-flex items-center px-4 py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white text-xs font-black uppercase tracking-wider rounded-xl shadow-md shadow-emerald-500/20 hover:shadow-lg transition-all duration-200"
-            >
-              <MessageCircle className="w-4 h-4 mr-1.5 fill-white text-[#25D366]" />
-              Order on WhatsApp
-            </a>
+            <div className="hidden sm:flex items-center gap-2">
+              <a
+                id="btn-nav-order"
+                href={whatsAppUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                referrerPolicy="no-referrer"
+                aria-label="Order on WhatsApp"
+                aria-disabled={!hasConsented}
+                onClick={(e) => {
+                  if (!hasConsented) {
+                    e.preventDefault();
+                    soundManager.playSoundEffect("pop");
+                    triggerWarning();
+                  } else {
+                    soundManager.playSoundEffect("victory");
+                  }
+                }}
+                className={`min-h-[44px] inline-flex items-center px-4 py-2.5 text-xs font-black uppercase tracking-wider rounded-xl transition-all duration-200 ${
+                  !hasConsented
+                    ? "bg-gray-200 text-gray-500 hover:bg-gray-300 cursor-not-allowed border border-gray-300"
+                    : "bg-[#25D366] hover:bg-[#20ba59] text-white shadow-md shadow-emerald-500/20 hover:shadow-lg cursor-pointer"
+                }`}
+              >
+                <MessageCircle className="w-4 h-4 mr-1.5 fill-white text-[#25D366]" />
+                Order on WhatsApp
+              </a>
+            </div>
 
             {/* Mobile Hamburger Toggle */}
             <button
@@ -249,13 +270,33 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
             </nav>
 
-            <div className="pt-2">
+            <div className="pt-2 space-y-3">
+              <OrderConsentCheckbox
+                id="consent-nav-mobile"
+                textClassName="text-xs text-gray-700 font-medium"
+                onNavigateLegal={onNavigateLegal}
+              />
               <a
                 id="btn-nav-order-mobile"
                 href={whatsAppUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 referrerPolicy="no-referrer"
-                className="w-full text-center inline-flex justify-center items-center px-5 py-3.5 bg-[#25D366] text-white font-extrabold text-sm rounded-xl shadow-md"
+                onClick={(e) => {
+                  if (!hasConsented) {
+                    e.preventDefault();
+                    soundManager.playSoundEffect("pop");
+                    triggerWarning();
+                  } else {
+                    soundManager.playSoundEffect("victory");
+                  }
+                }}
+                aria-disabled={!hasConsented}
+                className={`w-full text-center inline-flex justify-center items-center px-5 py-3.5 font-extrabold text-sm rounded-xl shadow-md transition-all ${
+                  !hasConsented
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300"
+                    : "bg-[#25D366] text-white hover:bg-[#20ba59] cursor-pointer"
+                }`}
               >
                 <MessageCircle className="w-5 h-5 mr-2 fill-white text-[#25D366]" />
                 Order on WhatsApp Now

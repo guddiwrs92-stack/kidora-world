@@ -1,21 +1,37 @@
 import React, { useState } from "react";
-import { MessageCircle, Play, Square, Download, FileText, ExternalLink, Award, CheckCheck, Sparkles, Send } from "lucide-react";
+import { MessageCircle, Play, Square, Download, Award, CheckCheck, Send } from "lucide-react";
 import { PersonalisationState } from "../types";
 import { soundManager } from "../utils/audioSynthesizer";
+import { buildCompliantWhatsAppMessage, getWhatsAppUrl } from "../config/contact";
+import { useOrderConsent } from "../context/OrderConsentContext";
+import { OrderConsentCheckbox } from "./OrderConsentCheckbox";
+import { trackGenericEvent } from "../lib/consent";
 
 interface WhatsAppMockupViewerProps {
   personalisation: PersonalisationState;
-  whatsAppUrl: string;
+  onNavigateLegal?: (path: string) => void;
 }
 
 export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
   personalisation,
-  whatsAppUrl
+  onNavigateLegal
 }) => {
   const [isPlayingAudioNote, setIsPlayingAudioNote] = useState(false);
   const [audioProgress, setAudioProgress] = useState(0);
+  const { hasConsented, triggerWarning } = useOrderConsent();
 
-  const childName = personalisation.name.trim() || "Arjun";
+  const childName = personalisation.name.trim().split(/\s+/)[0] || "Child";
+
+  const orderWhatsAppUrl = getWhatsAppUrl(
+    buildCompliantWhatsAppMessage({
+      childName,
+      ageBand: personalisation.age,
+      interest: personalisation.interest,
+      value: personalisation.value,
+      learningGoal: personalisation.goal,
+      chosenPack: "Growth Duo Pack"
+    })
+  );
 
   const togglePlayAudioNote = () => {
     if (isPlayingAudioNote) {
@@ -37,6 +53,17 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
     }
   };
 
+  const handleOrderClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (!hasConsented) {
+      e.preventDefault();
+      soundManager.playSoundEffect("pop");
+      triggerWarning();
+    } else {
+      soundManager.playSoundEffect("victory");
+      trackGenericEvent("click_order_button");
+    }
+  };
+
   return (
     <section id="delivery" className="py-16 md:py-24 bg-white border-t border-b border-gray-100 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -47,7 +74,7 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
             <span>Instant WhatsApp Delivery Experience</span>
           </span>
           <h2 className="font-display text-3xl sm:text-4xl font-black text-brand-text">
-            Delivered directly to your WhatsApp in 24h
+            Delivered directly to your WhatsApp in 24-48 hours
           </h2>
           <p className="text-gray-600 text-sm sm:text-base font-medium">
             No complicated app downloads or logins. Your high-fidelity custom MP3, storybook, and certificates arrive straight in your chat.
@@ -63,7 +90,7 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
           </div>
 
           {/* WhatsApp Interface Inside Phone */}
-          <div className="bg-[#EFEAE2] rounded-[28px] overflow-hidden shadow-inner flex flex-col h-[520px]">
+          <div className="bg-[#EFEAE2] rounded-[28px] overflow-hidden shadow-inner flex flex-col h-[560px]">
             
             {/* WhatsApp Chat Header */}
             <div className="bg-[#075E54] text-white p-3.5 flex items-center justify-between">
@@ -77,7 +104,7 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
                 </div>
               </div>
               <span className="text-xs bg-emerald-700/60 px-2 py-0.5 rounded text-emerald-100 font-mono">
-                24h Delivery
+                24-48h Delivery
               </span>
             </div>
 
@@ -155,15 +182,27 @@ export const WhatsAppMockupViewer: React.FC<WhatsAppMockupViewerProps> = ({
             </div>
 
             {/* Bottom Quick Order Action */}
-            <div className="p-3 bg-gray-100 border-t border-gray-200">
+            <div className="p-3 bg-gray-100 border-t border-gray-200 space-y-2">
+              <OrderConsentCheckbox
+                id="consent-mockup-viewer"
+                textClassName="text-[10px] text-gray-600 font-medium"
+                onNavigateLegal={onNavigateLegal}
+              />
               <a
-                href={whatsAppUrl}
+                href={orderWhatsAppUrl}
                 target="_blank"
+                rel="noopener noreferrer"
                 referrerPolicy="no-referrer"
-                className="w-full py-2.5 bg-[#25D366] hover:bg-[#20ba59] text-white font-extrabold text-xs rounded-xl shadow flex items-center justify-center gap-1.5 transition-all"
+                onClick={handleOrderClick}
+                aria-disabled={!hasConsented}
+                className={`w-full py-2.5 rounded-xl font-extrabold text-xs shadow flex items-center justify-center gap-1.5 transition-all ${
+                  !hasConsented
+                    ? "bg-gray-300 text-gray-500 cursor-not-allowed hover:bg-gray-300"
+                    : "bg-[#25D366] hover:bg-[#20ba59] text-white cursor-pointer"
+                }`}
               >
                 <Send className="w-3.5 h-3.5" />
-                <span>Chat & Order for {childName} →</span>
+                <span>Chat &amp; Order for {childName} →</span>
               </a>
             </div>
 
